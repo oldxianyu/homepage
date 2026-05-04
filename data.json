@@ -1,0 +1,151 @@
+{
+  "basic": {
+    "name": "Zyyo",
+    "title": "Zyyo",
+    "description": "👦 <span class='purpleText'>Full Stack</span> Developer",
+    "slogan": "📝 The only way to do <span class='purpleText textBackground'>great</span> is to <span class='purpleText textBackground'>love</span> what you do.",
+    "favicon": "./static/img/favicon.ico"
+  },
+  "location": {
+    "country": "China-Henan",
+    "school": "Sias"
+  },
+  "tags": ["网瘾", "小学生", "大一", "网页", "linux", "跑者", "前端", "骑行"],
+  "timeline": [
+    { "text": "敬请期待", "date": "2024.1", "active": true },
+    { "text": "ICP备案成功", "date": "2023.8", "active": false },
+    { "text": "注册域名zyyo.net", "date": "2023.3", "active": false },
+    { "text": "出来后洗心革面", "date": "2021.2", "active": false },
+    { "text": "...", "date": "...", "active": false },
+    { "text": "搭建第一个网站", "date": "2018.1", "active": false }
+  ],
+  "social": [
+    {
+      "name": "Github",
+      "url": "https://github.com/ZYYO666",
+      "type": "link",
+      "icon": "github"
+    },
+    {
+      "name": "Mail",
+      "url": "mailto:i@zyyo.net",
+      "type": "link",
+      "icon": "mail"
+    },
+    {
+      "name": "赞助",
+      "url": "./static/img/wxzsm.jpg",
+      "type": "popup",
+      "icon": "donate"
+    },
+    {
+      "name": "QQ",
+      "url": "./static/img/qq.jpg",
+      "type": "popup",
+      "icon": "qq"
+    }
+  ],
+  "projects": [
+    {
+      "category": "site",
+      "categoryIcon": "folder",
+      "items": [
+        {
+          "title": "博客",
+          "desc": "记录摆烂日常",
+          "url": "https://blog.zyyo.net",
+          "icon": "./static/img/i1.png",
+          "style": "a"
+        },
+        {
+          "title": "云盘",
+          "desc": "存储收集文件",
+          "url": "https://i.zyyo.cc",
+          "icon": "./static/img/i2.png",
+          "style": "a"
+        },
+        {
+          "title": "实验室",
+          "desc": "收集有趣html作品",
+          "url": "https://zyyo.cc",
+          "icon": "./static/img/i4.png",
+          "style": "a"
+        }
+      ]
+    },
+    {
+      "category": "project",
+      "categoryIcon": "folder",
+      "items": [
+        {
+          "title": "博客",
+          "desc": "记录摆烂日常",
+          "url": "https://blog.zyyo.net",
+          "icon": "./static/img/i1.png",
+          "style": "b"
+        },
+        {
+          "title": "云盘",
+          "desc": "存储收集文件",
+          "url": "https://i.zyyo.cc",
+          "icon": "./static/img/i2.png",
+          "style": "b"
+        },
+        {
+          "title": "实验室",
+          "desc": "收集有趣html作品",
+          "url": "https://zyyo.cc",
+          "icon": "./static/img/i4.png",
+          "style": "b"
+        }
+      ]
+    }
+  ],
+  "skills": {
+    "pcImage": "./static/svg/skillPc.svg",
+    "wapImage": "./static/svg/skillWap.svg"
+  },
+  "theme": {
+    "preset": "theme1",
+    "custom": {
+      "--main_bg_color": "url(./static/img/background.jpg)",
+      "--main_text_color": "#eeeeee",
+      "--gradient": "linear-gradient(120deg, #bd34fe, #e0321b 30%, #41d1ff 60%)",
+      "--purple_text_color": "#747bff",
+      "--text_bg_color": "#00000040",
+      "--item_bg_color": "#00000038",
+      "--item_hover_color": "#33333338",
+      "--item_left_title_color": "#ffffff",
+      "--item_left_text_color": "#ffffff",
+      "--footer_text_color": "#ffffff",
+      "--left_tag_item": "rgb(27 42 57 / 20%)",
+      "--card_filter": "15px",
+      "--back_filter": "0px",
+      "--back_filter_color": "#00000030",
+      "--fill": "#ffffff"
+    }
+  },
+  "features": {
+    "snake": true,
+    "sidebar": true,
+    "skills": true,
+    "loadingAnimation": true,
+    "clickBubble": true,
+    "fpsCounter": false
+  },
+  "images": {
+    "logo": "./static/img/logo.png",
+    "logoFrame": "./static/img/logokuang.png",
+    "background": "./static/img/background.jpg"
+  },
+  "footer": {
+    "text": "Zyyo © 2024 |",
+    "icp": "豫ICP备2023015852号-1",
+    "icpUrl": "https://beian.miit.gov.cn/"
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": "51.la",
+    "id": "KFqltKSkJgQTGD9l"
+  }
+}

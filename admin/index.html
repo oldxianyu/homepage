@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>后台管理 - 导航页配置</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+.header{background:#1e293b;border-bottom:1px solid #334155;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header h1{font-size:20px;color:#f8fafc}
+.header-actions{display:flex;gap:10px}
+.btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s}
+.btn-primary{background:#3b82f6;color:#fff}.btn-primary:hover{background:#2563eb}
+.btn-success{background:#10b981;color:#fff}.btn-success:hover{background:#059669}
+.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-outline{background:transparent;color:#94a3b8;border:1px solid #475569}.btn-outline:hover{background:#1e293b;color:#e2e8f0}
+.layout{display:flex;min-height:calc(100vh - 60px)}
+.sidebar{width:220px;background:#1e293b;border-right:1px solid #334155;padding:12px 0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;flex-shrink:0}
+.sidebar-item{padding:10px 20px;cursor:pointer;font-size:14px;color:#94a3b8;transition:all .15s;border-left:3px solid transparent}
+.sidebar-item:hover{background:#334155;color:#e2e8f0}
+.sidebar-item.active{background:#1e3a5f;color:#60a5fa;border-left-color:#3b82f6}
+.main{flex:1;padding:24px;max-width:900px}
+.section{display:none}.section.active{display:block}
+.section-title{font-size:18px;font-weight:600;color:#f1f5f9;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #334155}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:13px;color:#94a3b8;margin-bottom:6px;font-weight:500}
+.form-input,.form-textarea,.form-select{width:100%;padding:10px 12px;background:#1e293b;border:1px solid #475569;border-radius:6px;color:#e2e8f0;font-size:14px;transition:border-color .2s}
+.form-input:focus,.form-textarea:focus,.form-select:focus{outline:none;border-color:#3b82f6}
+.form-textarea{min-height:80px;resize:vertical;font-family:inherit}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-hint{font-size:12px;color:#64748b;margin-top:4px}
+.card{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:16px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:600;color:#e2e8f0;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.item-list{display:flex;flex-direction:column;gap:10px}
+.item-card{background:#0f172a;border:1px solid #334155;border-radius:6px;padding:12px;position:relative}
+.item-card .remove-btn{position:absolute;top:8px;right:8px;background:none;border:none;color:#ef4444;cursor:pointer;font-size:18px;line-height:1;padding:4px}
+.item-card .remove-btn:hover{color:#f87171}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e293b}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:14px;color:#cbd5e1}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer}
+.toggle input{display:none}
+.toggle-slider{position:absolute;inset:0;background:#475569;border-radius:12px;transition:.3s}
+.toggle-slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked+.toggle-slider{background:#3b82f6}
+.toggle input:checked+.toggle-slider:before{transform:translateX(20px)}
+.color-input{display:flex;align-items:center;gap:10px}
+.color-input input[type="color"]{width:40px;height:36px;border:1px solid #475569;border-radius:6px;cursor:pointer;background:none;padding:2px}
+.color-input .form-input{flex:1}
+.preview-bar{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px;margin-top:24px;text-align:center;color:#64748b;font-size:13px}
+.toast{position:fixed;bottom:24px;right:24px;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px 20px;color:#e2e8f0;font-size:14px;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:768px){
+.sidebar{display:none}.main{padding:16px}
+.form-row{grid-template-columns:1fr}
+.header h1{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>🎨 导航页后台管理</h1>
+<div class="header-actions">
+<button class="btn btn-outline" onclick="importConfig()">📥 导入配置</button>
+<button class="btn btn-success" onclick="exportConfig()">📤 导出配置</button>
+<button class="btn btn-primary" onclick="previewSite()">👁 预览</button>
+</div>
+</div>
+
+<div class="layout">
+<div class="sidebar" id="sidebar">
+<div class="section-btn active" data-section="basic">👤 基本信息</div>
+<div class="section-btn" data-section="location">📍 位置信息</div>
+<div class="section-btn" data-section="tags">🏷️ 标签管理</div>
+<div class="section-btn" data-section="timeline">📅 时间线</div>
+<div class="section-btn" data-section="social">🔗 社交链接</div>
+<div class="section-btn" data-section="projects">📁 项目管理</div>
+<div class="section-btn" data-section="skills">💻 技能区</div>
+<div class="section-btn" data-section="images">🖼️ 图片资源</div>
+<div class="section-btn" data-section="theme">🎨 主题样式</div>
+<div class="section-btn" data-section="features">⚡ 功能开关</div>
+<div class="section-btn" data-section="footer">📝 页脚信息</div>
+</div>
+
+<div class="main">
+<!-- 基本信息 -->
+<div class="section active" id="sec-basic">
+<div class="section-title">基本信息</div>
+<div class="form-group">
+<label class="form-label">显示名称</label>
+<input class="form-input" id="f-name" placeholder="如：Zyyo">
+</div>
+<div class="form-group">
+<label class="form-label">页面标题</label>
+<input class="form-input" id="f-title" placeholder="浏览器标签页显示的标题">
+</div>
+<div class="form-group">
+<label class="form-label">自我介绍 (支持HTML)</label>
+<textarea class="form-textarea" id="f-desc" placeholder="如：👦 Full Stack Developer"></textarea>
+<div class="form-hint">可用 &lt;span class='purpleText'&gt;高亮&lt;/span&gt; 做紫色强调</div>
+</div>
+<div class="form-group">
+<label class="form-label">个性签名 (支持HTML)</label>
+<textarea class="form-textarea" id="f-slogan" placeholder="如：The only way to do great..."></textarea>
+</div>
+</div>
+
+<!-- 位置信息 -->
+<div class="section" id="sec-location">
+<div class="section-title">位置信息</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">地区</label>
+<input class="form-input" id="f-country" placeholder="如：China-Henan">
+</div>
+<div class="form-group">
+<label class="form-label">学校/机构</label>
+<input class="form-input" id="f-school" placeholder="如：Sias">
+</div>
+</div>
+</div>
+
+<!-- 标签管理 -->
+<div class="section" id="sec-tags">
+<div class="section-title">标签管理</div>
+<div id="tags-container"></div>
+<button class="btn btn-primary" onclick="addTag()" style="margin-top:12px">+ 添加标签</button>
+</div>
+
+<!-- 时间线 -->
+<div class="section" id="sec-timeline">
+<div class="section-title">时间线</div>
+<div class="item-list" id="timeline-list"></div>
+<button class="btn btn-primary" onclick="addTimeline()" style="margin-top:12px">+ 添加事件</button>
+</div>
+
+<!-- 社交链接 -->
+<div class="section" id="sec-social">
+<div class="section-title">社交链接</div>
+<div class="item-list" id="social-list"></div>
+<button class="btn btn-primary" onclick="addSocial()" style="margin-top:12px">+ 添加链接</button>
+</div>
+
+<!-- 项目管理 -->
+<div class="section" id="sec-projects">
+<div class="section-title">项目分类管理</div>
+<div class="item-list" id="projects-list"></div>
+<button class="btn btn-primary" onclick="addProjectCategory()" style="margin-top:12px">+ 添加分类</button>
+</div>
+
+<!-- 技能区 -->
+<div class="section" id="sec-skills">
+<div class="section-title">技能区图片</div>
+<div class="form-group">
+<label class="form-label">PC端技能图路径</label>
+<input class="form-input" id="f-skillPc" placeholder="./static/svg/skillPc.svg">
+</div>
+<div class="form-group">
+<label class="form-label">移动端技能图路径</label>
+<input class="form-input" id="f-skillWap" placeholder="./static/svg/skillWap.svg">
+</div>
+</div>
+
+<!-- 图片资源 -->
+<div class="section" id="sec-images">
+<div class="section-title">图片资源</div>
+<div class="form-group">
+<label class="form-label">Logo 路径</label>
+<input class="form-input" id="f-logo" placeholder="./static/img/logo.png">
+</div>
+<div class="form-group">
+<label class="form-label">Logo边框路径</label>
+<input class="form-input" id="f-logoFrame" placeholder="./static/img/logokuang.png">
+</div>
+<div class="form-group">
+<label class="form-label">背景图路径</label>
+<input class="form-input" id="f-background" placeholder="./static/img/background.jpg">
+</div>
+<div class="form-group">
+<label class="form-label">Favicon 路径</label>
+<input class="form-input" id="f-favicon" placeholder="./static/img/favicon.ico">
+</div>
+</div>
+
+<!-- 主题样式 -->
+<div class="section" id="sec-theme">
+<div class="section-title">主题样式</div>
+<div class="form-group">
+<label class="form-label">预设主题</label>
+<select class="form-select" id="f-themePreset">
+<option value="theme1">主题1 - 暗色卡片模糊</option>
+<option value="theme2">主题2 - 亮色背景模糊</option>
+<option value="theme3">主题3 - 蓝色渐变</option>
+<option value="theme4">主题4 - 白色简约</option>
+<option value="theme5">主题5 - 暗色背景模糊</option>
+<option value="custom">自定义</option>
+</select>
+</div>
+<div id="custom-theme-section">
+<div class="form-group">
+<label class="form-label">背景 CSS (图片用 url(...))</label>
+<input class="form-input" id="f-t-main_bg_color" placeholder="url(./static/img/background.jpg)">
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">文本颜色</label>
+<div class="color-input">
+<input type="color" id="f-t-main_text_color_p" value="#eeeeee" onchange="document.getElementById('f-t-main_text_color').value=this.value">
+<input class="form-input" id="f-t-main_text_color" value="#eeeeee">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">渐变色</label>
+<input class="form-input" id="f-t-gradient" placeholder="linear-gradient(120deg, #bd34fe, #e0321b 30%, #41d1ff 60%)">
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">强调紫色</label>
+<div class="color-input">
+<input type="color" id="f-t-purple_text_color_p" value="#747bff" onchange="document.getElementById('f-t-purple_text_color').value=this.value">
+<input class="form-input" id="f-t-purple_text_color" value="#747bff">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">文字背景色</label>
+<input class="form-input" id="f-t-text_bg_color" placeholder="#00000040">
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">项目卡片背景</label>
+<input class="form-input" id="f-t-item_bg_color" placeholder="#00000038">
+</div>
+<div class="form-group">
+<label class="form-label">项目卡片悬停色</label>
+<input class="form-input" id="f-t-item_hover_color" placeholder="#33333338">
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">项目标题颜色</label>
+<div class="color-input">
+<input type="color" id="f-t-item_left_title_color_p" value="#ffffff" onchange="document.getElementById('f-t-item_left_title_color').value=this.value">
+<input class="form-input" id="f-t-item_left_title_color" value="#ffffff">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">项目描述颜色</label>
+<div class="color-input">
+<input type="color" id="f-t-item_left_text_color_p" value="#ffffff" onchange="document.getElementById('f-t-item_left_text_color').value=this.value">
+<input class="form-input" id="f-t-item_left_text_color" value="#ffffff">
+</div>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">页脚颜色</label>
+<div class="color-input">
+<input type="color" id="f-t-footer_text_color_p" value="#ffffff" onchange="document.getElementById('f-t-footer_text_color').value=this.value">
+<input class="form-input" id="f-t-footer_text_color" value="#ffffff">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">标签背景</label>
+<input class="form-input" id="f-t-left_tag_item" placeholder="rgb(27 42 57 / 20%)">
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">卡片模糊</label>
+<input class="form-input" id="f-t-card_filter" placeholder="15px">
+</div>
+<div class="form-group">
+<label class="form-label">背景模糊</label>
+<input class="form-input" id="f-t-back_filter" placeholder="0px">
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">背景遮罩色</label>
+<input class="form-input" id="f-t-back_filter_color" placeholder="#00000030">
+</div>
+<div class="form-group">
+<label class="form-label">SVG图标填充色</label>
+<div class="color-input">
+<input type="color" id="f-t-fill_p" value="#ffffff" onchange="document.getElementById('f-t-fill').value=this.value">
+<input class="form-input" id="f-t-fill" value="#ffffff">
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 功能开关 -->
+<div class="section" id="sec-features">
+<div class="section-title">功能开关</div>
+<div class="card">
+<div class="toggle-row">
+<span class="toggle-label">贪吃蛇动画</span>
+<label class="toggle"><input type="checkbox" id="f-feat-snake" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">左侧栏</span>
+<label class="toggle"><input type="checkbox" id="f-feat-sidebar" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">技能区</span>
+<label class="toggle"><input type="checkbox" id="f-feat-skills" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">加载动画</span>
+<label class="toggle"><input type="checkbox" id="f-feat-loading" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">点击气泡</span>
+<label class="toggle"><input type="checkbox" id="f-feat-bubble" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">FPS计数器</span>
+<label class="toggle"><input type="checkbox" id="f-feat-fps"><span class="toggle-slider"></span></label>
+</div>
+</div>
+</div>
+
+<!-- 页脚信息 -->
+<div class="section" id="sec-footer">
+<div class="section-title">页脚信息</div>
+<div class="form-group">
+<label class="form-label">页脚文字</label>
+<input class="form-input" id="f-footerText" placeholder="Zyyo © 2024 |">
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">ICP备案号</label>
+<input class="form-input" id="f-icp" placeholder="豫ICP备2023015852号-1">
+</div>
+<div class="form-group">
+<label class="form-label">ICP链接</label>
+<input class="form-input" id="f-icpUrl" placeholder="https://beian.miit.gov.cn/">
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// State
+var config = {};
+
+// Init
+function init() {
+fetch('./data.json')
+.then(function(r){return r.json()})
+.then(function(c){config=c;loadForm();setupSidebar()})
+.catch(function(){config=getDefaultConfig();loadForm();setupSidebar()});
+}
+
+function getDefaultConfig(){
+return {basic:{name:"",title:"",description:"",slogan:"",favicon:""},location:{country:"",school:""},tags:[],timeline:[],social:[],projects:[],skills:{pcImage:"",wapImage:""},theme:{preset:"theme1",custom:{}},features:{snake:true,sidebar:true,skills:true,loadingAnimation:true,clickBubble:true,fpsCounter:false},images:{logo:"",logoFrame:"",background:"",favicon:""},footer:{text:"",icp:"",icpUrl:""}};
+}
+
+// Sidebar
+function setupSidebar(){
+var items=document.querySelectorAll('.section-btn');
+items.forEach(function(item){
+item.addEventListener('click',function(){
+items.forEach(function(i){i.classList.remove('active')});
+this.classList.add('active');
+var secId='sec-'+this.dataset.section;
+document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+document.getElementById(secId).classList.add('active');
+});
+});
+}
+
+// Load form
+function loadForm(){
+var b=config.basic||{};
+document.getElementById('f-name').value=b.name||'';
+document.getElementById('f-title').value=b.title||'';
+document.getElementById('f-desc').value=b.description||'';
+document.getElementById('f-slogan').value=b.slogan||'';
+document.getElementById('f-favicon').value=b.favicon||'';
+
+var loc=config.location||{};
+document.getElementById('f-country').value=loc.country||'';
+document.getElementById('f-school').value=loc.school||'';
+
+renderTags();
+renderTimeline();
+renderSocial();
+renderProjects();
+
+var sk=config.skills||{};
+document.getElementById('f-skillPc').value=sk.pcImage||'';
+document.getElementById('f-skillWap').value=sk.wapImage||'';
+
+var img=config.images||{};
+document.getElementById('f-logo').value=img.logo||'';
+document.getElementById('f-logoFrame').value=img.logoFrame||'';
+document.getElementById('f-background').value=img.background||'';
+
+var th=config.theme||{};
+document.getElementById('f-themePreset').value=th.preset||'theme1';
+var c=th.custom||{};
+document.getElementById('f-t-main_bg_color').value=c['--main_bg_color']||'';
+document.getElementById('f-t-main_text_color').value=c['--main_text_color']||'#eeeeee';
+document.getElementById('f-t-gradient').value=c['--gradient']||'';
+document.getElementById('f-t-purple_text_color').value=c['--purple_text_color']||'#747bff';
+document.getElementById('f-t-text_bg_color').value=c['--text_bg_color']||'';
+document.getElementById('f-t-item_bg_color').value=c['--item_bg_color']||'';
+document.getElementById('f-t-item_hover_color').value=c['--item_hover_color']||'';
+document.getElementById('f-t-item_left_title_color').value=c['--item_left_title_color']||'#ffffff';
+document.getElementById('f-t-item_left_text_color').value=c['--item_left_text_color']||'#ffffff';
+document.getElementById('f-t-footer_text_color').value=c['--footer_text_color']||'#ffffff';
+document.getElementById('f-t-left_tag_item').value=c['--left_tag_item']||'';
+document.getElementById('f-t-card_filter').value=c['--card_filter']||'0px';
+document.getElementById('f-t-back_filter').value=c['--back_filter']||'0px';
+document.getElementById('f-t-back_filter_color').value=c['--back_filter_color']||'';
+document.getElementById('f-t-fill').value=c['--fill']||'#ffffff';
+
+var ft=config.features||{};
+document.getElementById('f-feat-snake').checked=ft.snake!==false;
+document.getElementById('f-feat-sidebar').checked=ft.sidebar!==false;
+document.getElementById('f-feat-skills').checked=ft.skills!==false;
+document.getElementById('f-feat-loading').checked=ft.loadingAnimation!==false;
+document.getElementById('f-feat-bubble').checked=ft.clickBubble!==false;
+document.getElementById('f-feat-fps').checked=ft.fpsCounter===true;
+
+var fo=config.footer||{};
+document.getElementById('f-footerText').value=fo.text||'';
+document.getElementById('f-icp').value=fo.icp||'';
+document.getElementById('f-icpUrl').value=fo.icpUrl||'';
+}
+
+// Tags
+function renderTags(){
+var html='';
+(config.tags||[]).forEach(function(t,i){
+html+='<div style="display:flex;gap:8px;margin-bottom:8px"><input class="form-input" value="'+t+'" onchange="config.tags['+i+']=this.value" placeholder="标签文字"><button class="btn btn-danger" onclick="config.tags.splice('+i+',1);renderTags()">✕</button></div>';
+});
+document.getElementById('tags-container').innerHTML=html;
+}
+function addTag(){if(!config.tags)config.tags=[];config.tags.push('新标签');renderTags()}
+
+// Timeline
+function renderTimeline(){
+var html='';
+(config.timeline||[]).forEach(function(t,i){
+html+='<div class="item-card"><button class="remove-btn" onclick="config.timeline.splice('+i+',1);renderTimeline()">✕</button>';
+html+='<div class="form-row"><div class="form-group"><label class="form-label">事件</label><input class="form-input" value="'+t.text+'" onchange="config.timeline['+i+'].text=this.value"></div>';
+html+='<div class="form-group"><label class="form-label">日期</label><input class="form-input" value="'+t.date+'" onchange="config.timeline['+i+'].date=this.value"></div></div></div>';
+});
+document.getElementById('timeline-list').innerHTML=html;
+}
+function addTimeline(){if(!config.timeline)config.timeline=[];config.timeline.push({text:"新事件",date:"2024.1",active:false});renderTimeline()}
+
+// Social
+function renderSocial(){
+var html='';
+(config.social||[]).forEach(function(s,i){
+html+='<div class="item-card"><button class="remove-btn" onclick="config.social.splice('+i+',1);renderSocial()">✕</button>';
+html+='<div class="form-row"><div class="form-group"><label class="form-label">名称</label><input class="form-input" value="'+s.name+'" onchange="config.social['+i+'].name=this.value"></div>';
+html+='<div class="form-group"><label class="form-label">图标 (github/mail/donate/qq/link)</label><select class="form-select" onchange="config.social['+i+'].icon=this.value"><option value="github"'+(s.icon==='github'?' selected':'')+'>GitHub</option><option value="mail"'+(s.icon==='mail'?' selected':'')+'>Mail</option><option value="donate"'+(s.icon==='donate'?' selected':'')+'>赞助</option><option value="qq"'+(s.icon==='qq'?' selected':'')+'>QQ</option><option value="link"'+(s.icon==='link'?' selected':'')+'>自定义链接</option></select></div></div>';
+html+='<div class="form-row"><div class="form-group"><label class="form-label">链接地址</label><input class="form-input" value="'+s.url+'" onchange="config.social['+i+'].url=this.value"></div>';
+html+='<div class="form-group"><label class="form-label">类型</label><select class="form-select" onchange="config.social['+i+'].type=this.value"><option value="link"'+(s.type==='link'?' selected':'')+'>链接跳转</option><option value="popup"'+(s.type==='popup'?' selected':'')+'>弹窗图片</option></select></div></div></div>';
+});
+document.getElementById('social-list').innerHTML=html;
+}
+function addSocial(){if(!config.social)config.social=[];config.social.push({name:"新链接",url:"#",type:"link",icon:"link"});renderSocial()}
+
+// Projects
+function renderProjects(){
+var html='';
+(config.projects||[]).forEach(function(cat,ci){
+html+='<div class="item-card"><button class="remove-btn" onclick="config.projects.splice('+ci+',1);renderProjects()">✕</button>';
+html+='<div class="form-group"><label class="form-label">分类名称</label><input class="form-input" value="'+cat.category+'" onchange="config.projects['+ci+'].category=this.value"></div>';
+html+='<div style="margin-top:12px">';
+(cat.items||[]).forEach(function(item,ii){
+html+='<div style="background:#1a1a2e;border-radius:4px;padding:10px;margin-bottom:8px;position:relative"><button class="remove-btn" onclick="config.projects['+ci+'].items.splice('+ii+',1);renderProjects()">✕</button>';
+html+='<div class="form-row"><div class="form-group"><label class="form-label">标题</label><input class="form-input" value="'+item.title+'" onchange="config.projects['+ci+'].items['+ii+'].title=this.value"></div>';
+html+='<div class="form-group"><label class="form-label">描述</label><input class="form-input" value="'+item.desc+'" onchange="config.projects['+ci+'].items['+ii+'].desc=this.value"></div></div>';
+html+='<div class="form-row"><div class="form-group"><label class="form-label">链接</label><input class="form-input" value="'+item.url+'" onchange="config.projects['+ci+'].items['+ii+'].url=this.value"></div>';
+html+='<div class="form-group"><label class="form-label">图标路径</label><input class="form-input" value="'+item.icon+'" onchange="config.projects['+ci+'].items['+ii+'].icon=this.value"></div></div></div>';
+});
+html+='<button class="btn btn-outline" onclick="config.projects['+ci+'].items.push({title:"新项目",desc:"描述",url:"#",icon:"./static/img/i1.png",style:"a"});renderProjects()">+ 添加项目</button>';
+html+='</div></div>';
+});
+document.getElementById('projects-list').innerHTML=html;
+}
+function addProjectCategory(){if(!config.projects)config.projects=[];config.projects.push({category:"新分类",categoryIcon:"folder",items:[{title:"新项目",desc:"描述",url:"#",icon:"./static/img/i1.png",style:"a"}]});renderProjects()}
+
+// Save form to config
+function saveForm(){
+config.basic={
+name:document.getElementById('f-name').value,
+title:document.getElementById('f-title').value,
+description:document.getElementById('f-desc').value,
+slogan:document.getElementById('f-slogan').value,
+favicon:document.getElementById('f-favicon').value
+};
+config.location={country:document.getElementById('f-country').value,school:document.getElementById('f-school').value};
+config.skills={pcImage:document.getElementById('f-skillPc').value,wapImage:document.getElementById('f-skillWap').value};
+config.images={logo:document.getElementById('f-logo').value,logoFrame:document.getElementById('f-logoFrame').value,background:document.getElementById('f-background').value,favicon:document.getElementById('f-favicon').value};
+config.theme={
+preset:document.getElementById('f-themePreset').value,
+custom:{
+"--main_bg_color":document.getElementById('f-t-main_bg_color').value,
+"--main_text_color":document.getElementById('f-t-main_text_color').value,
+"--gradient":document.getElementById('f-t-gradient').value,
+"--purple_text_color":document.getElementById('f-t-purple_text_color').value,
+"--text_bg_color":document.getElementById('f-t-text_bg_color').value,
+"--item_bg_color":document.getElementById('f-t-item_bg_color').value,
+"--item_hover_color":document.getElementById('f-t-item_hover_color').value,
+"--item_left_title_color":document.getElementById('f-t-item_left_title_color').value,
+"--item_left_text_color":document.getElementById('f-t-item_left_text_color').value,
+"--footer_text_color":document.getElementById('f-t-footer_text_color').value,
+"--left_tag_item":document.getElementById('f-t-left_tag_item').value,
+"--card_filter":document.getElementById('f-t-card_filter').value,
+"--back_filter":document.getElementById('f-t-back_filter').value,
+"--back_filter_color":document.getElementById('f-t-back_filter_color').value,
+"--fill":document.getElementById('f-t-fill').value
+}
+};
+config.features={
+snake:document.getElementById('f-feat-snake').checked,
+sidebar:document.getElementById('f-feat-sidebar').checked,
+skills:document.getElementById('f-feat-skills').checked,
+loadingAnimation:document.getElementById('f-feat-loading').checked,
+clickBubble:document.getElementById('f-feat-bubble').checked,
+fpsCounter:document.getElementById('f-feat-fps').checked
+};
+config.footer={
+text:document.getElementById('f-footerText').value,
+icp:document.getElementById('f-icp').value,
+icpUrl:document.getElementById('f-icpUrl').value
+};
+}
+
+// Export
+function exportConfig(){
+saveForm();
+var blob=new Blob([JSON.stringify(config,null,2)],{type:'application/json'});
+var a=document.createElement('a');
+a.href=URL.createObjectURL(blob);
+a.download='data.json';
+a.click();
+showToast('✅ 配置已导出，请将 data.json 替换到项目根目录后重新部署');
+}
+
+// Import
+function importConfig(){document.getElementById('fileInput').click()}
+function handleImport(e){
+var file=e.target.files[0];if(!file)return;
+var reader=new FileReader();
+reader.onload=function(ev){
+try{config=JSON.parse(ev.target.result);loadForm();showToast('✅ 配置已导入')}catch(err){showToast('❌ JSON格式错误')}
+};
+reader.readAsText(file);
+}
+
+// Preview
+function previewSite(){
+saveForm();
+var w=window.open('about:blank');
+var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>预览</title><link rel="stylesheet" href="./static/css/style.css"><link rel="stylesheet" href="./static/css/root.css"></head><body><div id="zyyo-loading" style="display:none"></div><div class="zyyo-filter"></div><div class="zyyo-main"><div class="zyyo-left"><div class="logo" style="background-image:url('+(config.images.logo||'')+')"></div><div class="left-div left-des">';
+if(config.location.country)html+='<div class="left-des-item">'+config.location.country+'</div>';
+if(config.location.school)html+='<div class="left-des-item">'+config.location.school+'</div>';
+html+='</div><div class="left-div left-tag">';
+(config.tags||[]).forEach(function(t){html+='<div class="left-tag-item">'+t+'</div>'});
+html+='</div></div><div class="zyyo-right"><header><div class="welcome">Hello I\' m <span class="gradientText">'+(config.basic.name||'')+'</span></div><div class="description">'+(config.basic.description||'')+'</div><div class="description">'+(config.basic.slogan||'')+'</div></header>';
+(config.projects||[]).forEach(function(cat){
+html+='<div class="title">'+cat.category+'</div><div class="projectList">';
+(cat.items||[]).forEach(function(item){html+='<a class="projectItem '+(item.style||'a')+'" target="_blank" href="'+item.url+'"><div class="projectItemLeft"><h1>'+item.title+'</h1><p>'+item.desc+'</p></div><div class="projectItemRight"><img src="'+item.icon+'"></div></a>'});
+html+='</div>';
+});
+html+='</div></div><footer>'+(config.footer.text||'')+(config.footer.icp?' <a href="'+config.footer.icpUrl+'">'+config.footer.icp+'</a>':'')+'</footer></body></html>';
+w.document.write(html);w.document.close();
+}
+
+// Toast
+function showToast(msg){
+var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+setTimeout(function(){t.classList.remove('show')},3000);
+}
+
+init();
+</script>
+</body>
+</html>
