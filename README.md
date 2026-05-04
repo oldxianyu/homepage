@@ -4,6 +4,8 @@
 
 **在线预览：** https://homepage-2dy.pages.dev
 
+> 本项目支持 Cloudflare Pages（KV 联动）和 Docker（纯静态）两种部署方式，后台管理面板地址均为 `/admin/`。
+
 ## 特点
 
 - 🎨 **前端**：与原版完全一致的导航页样式
@@ -46,21 +48,23 @@
 
 ### 后台管理
 
-访问 https://homepage-2dy.pages.dev/admin/ 进入后台管理界面。
+访问 `/admin/` 进入后台管理界面。
 
 1. 编辑各项配置
 2. 点击「🚀 保存到服务器」
-3. 输入管理密码（默认：`xianyu`）
+3. 输入管理密码
 4. 前端即时生效，刷新首页即可看到变化
 
-也可以「📥 导出配置」下载 `data.json` 文件作为备份。
+> **Cloudflare Pages 部署**：配置保存到 KV，前端实时读取，无需重新部署。
+>
+> **Docker 部署**：配置通过导出 `data.json` 文件，需手动替换后重启容器。
 
-## Cloudflare Pages 部署
+## Cloudflare Pages 部署（推荐）
 
 ### 前置条件
 
 - Cloudflare 账号
-- 已安装 `wrangler` CLI
+- 已安装 `wrangler` CLI（`npm install -g wrangler`）
 
 ### 步骤
 
@@ -100,13 +104,13 @@
    npx wrangler pages deploy . --project-name=homepage --branch=main
    ```
 
-### Docker 部署（无 KV 功能）
+## Docker 部署（纯静态模式）
 
 ```bash
 docker compose up -d
 ```
 
-Docker 部署仅支持静态配置，需手动编辑 `data.json` 后重新构建。
+Docker 部署不支持 KV 联动，需手动编辑 `data.json` 或通过后台「导出配置」下载后替换文件，再重启容器。
 
 ## 文件结构
 

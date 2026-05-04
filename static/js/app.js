@@ -198,18 +198,29 @@ function initInteractions() {
 	if (tc) tc.addEventListener('click', function(e) { if (e.target === tc) pop(); });
 	if (tcMain) tcMain.addEventListener('click', function(e) { e.stopPropagation(); });
 
-	// Loading
-	var pageLoading = document.querySelector("#zyyo-loading");
-	if (pageLoading) {
-		window.addEventListener('load', function() {
-			setTimeout(function() { pageLoading.style.opacity = '0'; }, 100);
-		});
-	}
 }
 
-// Load config and render
-fetch('./data.json')
-	.then(function(r) { return r.json(); })
+// Loading - 立即隐藏
+var pageLoading = document.querySelector("#zyyo-loading");
+if (pageLoading) {
+	pageLoading.style.transition = 'opacity 0.3s ease';
+	pageLoading.style.opacity = '0';
+}
+
+// Load config and render - 优先从 KV API 读取，fallback 到 data.json
+function loadConfig() {
+	return fetch('/api/config')
+		.then(function(r) {
+			if (!r.ok) throw new Error('API failed');
+			return r.json();
+		})
+		.catch(function() {
+			// fallback 到静态 data.json
+			return fetch('/data.json').then(function(r) { return r.json(); });
+		});
+}
+
+loadConfig()
 	.then(function(config) { renderPage(config); })
 	.catch(function(err) {
 		console.error('Failed to load config:', err);
