@@ -1,7 +1,5 @@
 # 导航页 (可配置版)
 
-基于 [ZYYO666/homepage](https://github.com/ZYYO666/homepage) 的可配置导航页，增加了后台管理面板。
-
 **在线预览：** https://homepage-2dy.pages.dev
 
 > 本项目支持 Cloudflare Pages（KV 联动）和 Docker（纯静态）两种部署方式，后台管理面板地址均为 `/admin/`。
